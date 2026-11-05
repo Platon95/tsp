@@ -1,0 +1,29 @@
+name: Загрузка фото аминокислот
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - img/bnbc/sources.txt
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Скачать фото с bnbc.by
+        run: |
+          while read -r name url; do
+            [ -z "$name" ] && continue
+            curl -fsSL --retry 3 -A "Mozilla/5.0" -o "img/bnbc/$name.jpg" "$url" || echo "Не удалось: $name"
+          done < img/bnbc/sources.txt
+          ls -la img/bnbc
+      - name: Сохранить в репозиторий
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add img/bnbc
+          git diff --cached --quiet || (git commit -m "Фото аминокислот с bnbc.by" && git push)
