@@ -427,15 +427,14 @@ dialog::backdrop{background:rgba(10,14,12,.5);backdrop-filter:blur(3px)}
   const plural = (n,a,b,c) => { const m10=n%10,m100=n%100; return m10===1&&m100!==11?a:m10>=2&&m10<=4&&(m100<10||m100>=20)?b:c; };
 
   // Куда уходит заявка. В демо-версии отправка не подключена: здесь появится отправка на почту после размещения на хостинге.
-  // Заявки уходят в Telegram-бота. Токен бота и ID чата: заполнить в TG ниже.
-  const TG = { token: '', chat: '' };
+  // Заявки уходят в Telegram через свой сервер (Cloudflare Worker), токен бота хранится там, а не в сайте.
+  const LEAD_URL = '';
   async function sendLead(lead){
-    const text = 'Новая заявка с сайта ТСП\n\nТелефон: ' + lead.phone + '\nИнтересует: ' + lead.topic + '\nСтраница: ' + (lead.page || '#home') + '\nВремя: ' + new Date().toLocaleString('ru-RU', {timeZone:'Europe/Moscow'}) + ' (МСК)';
-    if (!TG.token || !TG.chat) { console.info('Заявка (бот ещё не подключён):', text); return true; }
-    const body = new URLSearchParams({chat_id: TG.chat, text: text});
-    const url = 'https://api.telegram.org/bot' + TG.token + '/sendMessage';
-    try { const r = await fetch(url, {method:'POST', body: body}); return r.ok; }
-    catch (e) { try { await fetch(url, {method:'POST', body: body, mode:'no-cors'}); return true; } catch (e2) { return false; } }
+    if (!LEAD_URL) { console.info('Заявка (бот ещё не подключён):', lead); return true; }
+    try {
+      const r = await fetch(LEAD_URL, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(lead)});
+      return r.ok;
+    } catch (e) { return false; }
   }
 
   const TRUST = [
