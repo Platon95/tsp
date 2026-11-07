@@ -1,0 +1,620 @@
+<title>ТСП</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+__FONTS__
+
+/* Layout: три вкладки (Главная, Каталог, О компании); любая кнопка ведёт к одному полю «телефон» */
+:root{
+  --bg:#FFFFFF; --soft:#F2F4F1; --fg:#141A17; --muted:#66706A; --line:#E3E7E2;
+  --accent:#2440C4; --accent-fg:#FFFFFF; --ok:#1F7A4D; --bad:#C2352F;
+  --tile:#F0F2EE; --hdr:rgba(255,255,255,.92); --cta-muted:#AEB6B1;
+  --display:"Unbounded","Golos Text",system-ui,sans-serif;
+  --body:"Golos Text",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --w:1120px; --r:22px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#101412; --soft:#181D1A; --fg:#ECEFEB; --muted:#9AA49E; --line:#262D29;
+  --accent:#8FA3FF; --accent-fg:#0D1430; --ok:#6FD3A0; --bad:#FF8A80; --tile:#E6E9E4; --hdr:rgba(16,20,18,.92); --cta-muted:#59625D; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#101412; --soft:#181D1A; --fg:#ECEFEB; --muted:#9AA49E; --line:#262D29;
+  --accent:#8FA3FF; --accent-fg:#0D1430; --ok:#6FD3A0; --bad:#FF8A80; --tile:#E6E9E4; --hdr:rgba(16,20,18,.92); --cta-muted:#59625D; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:400 17px/1.55 var(--body);-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:var(--w);margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+@media (min-width:720px){.wrap{padding-left:max(32px,env(safe-area-inset-left,0px));padding-right:max(32px,env(safe-area-inset-right,0px))}}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
+h1,h2,h3{margin:0;text-wrap:balance}
+h1,h2{font-family:var(--display);font-weight:600;letter-spacing:-.025em}
+.muted{color:var(--muted)}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;font:600 16px/1 var(--body);padding:17px 26px;border-radius:999px;border:0;background:var(--accent);color:var(--accent-fg);cursor:pointer;text-decoration:none;transition:transform .15s,box-shadow .2s,background .2s;white-space:nowrap}
+.btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px -10px var(--accent)}
+.btn:active{transform:translateY(0)}
+.btn .ar{transition:transform .2s}
+.btn:hover .ar{transform:translateX(4px)}
+.btn.line{background:transparent;color:var(--fg);box-shadow:inset 0 0 0 1.5px var(--line)}
+.btn.line:hover{box-shadow:inset 0 0 0 1.5px var(--fg)}
+.btn.sm{padding:12px 18px;font-size:14px}
+
+/* header */
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--hdr);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+header .wrap{display:flex;align-items:center;gap:28px;height:68px}
+.logo{font:600 22px/1 var(--display);letter-spacing:-.02em;text-decoration:none}
+.logo span{color:var(--accent)}
+nav.tabs{display:flex;gap:4px}
+@media (max-width:400px){nav.tabs a{padding:8px 7px!important;font-size:13px!important}.logo{font-size:19px}}
+nav.tabs a{text-decoration:none;font-weight:500;font-size:15px;color:var(--muted);padding:9px 14px;border-radius:999px;transition:color .2s,background .2s}
+nav.tabs a:hover{color:var(--fg)}
+nav.tabs a[aria-current="page"]{color:var(--fg);background:var(--soft)}
+header .btn{margin-left:auto}
+.theme{flex:none;width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--fg);display:grid;place-items:center;cursor:pointer;transition:border-color .2s,transform .3s}
+.theme:hover{border-color:var(--fg)}
+.theme:active{transform:rotate(30deg)}
+.theme svg{grid-area:1/1;transition:opacity .25s,transform .35s}
+.theme .i-sun{opacity:0;transform:rotate(-60deg) scale(.6)}
+.is-dark .theme .i-sun{opacity:1;transform:none}
+.is-dark .theme .i-moon{opacity:0;transform:rotate(60deg) scale(.6)}
+html.theme-anim body,html.theme-anim header,html.theme-anim .dir,html.theme-anim .card .ph{transition:background-color .35s,color .35s}
+@media (max-width:760px){
+  header .wrap{height:60px;gap:8px}
+  header .btn{display:none}
+  nav.tabs{margin-left:auto;gap:0}
+  nav.tabs a{white-space:nowrap}
+  .theme{width:34px;height:34px}
+  nav.tabs a{padding:8px 10px;font-size:14px}
+}
+
+/* views */
+.view{display:none}
+.view.on{display:block;animation:viewIn .45s cubic-bezier(.2,.7,.2,1)}
+@keyframes viewIn{from{opacity:.0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* hero */
+.hero{padding-block:72px 64px;display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center}
+.hero h1{font-size:clamp(28px,5.6vw,66px);line-height:1.03}
+.hero h1 .w{display:inline-block;animation:wordUp .7s cubic-bezier(.2,.7,.2,1) both}
+@keyframes wordUp{from{opacity:0;transform:translateY(.4em)}to{opacity:1;transform:none}}
+.hero p{font-size:clamp(17px,1.5vw,20px);color:var(--muted);max-width:30ch;margin:22px 0 30px}
+.packs{position:relative;aspect-ratio:1/1;max-width:100%;background:var(--tile);border-radius:32px;overflow:hidden}
+.packs img{position:absolute;width:52%;mix-blend-mode:multiply;animation:bob 6s ease-in-out infinite}
+.packs img:nth-child(1){left:6%;top:16%;animation-delay:-1s}
+.packs img:nth-child(2){left:42%;top:6%;width:56%;animation-delay:-3s}
+.packs img:nth-child(3){left:26%;top:40%;animation-delay:-4.5s}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-1.5deg)}50%{transform:translateY(-10px) rotate(1.5deg)}}
+@media (max-width:860px){.hero{grid-template-columns:1fr;padding-block:40px 40px}.packs{max-width:460px;width:100%}}
+
+/* quick phone form */
+.quick{display:flex;gap:8px;max-width:480px;background:var(--soft);padding:6px;border-radius:999px;transition:box-shadow .2s}
+.quick:focus-within{box-shadow:0 0 0 2px var(--accent)}
+.quick input{flex:1;min-width:0;border:0;background:transparent;color:var(--fg);font:500 18px/1 var(--body);padding:0 18px;outline:none}
+.quick input::placeholder{color:var(--muted)}
+.quick .btn{padding:15px 22px}
+.hint{font-size:13px;color:var(--muted);margin-top:12px}
+.hint.err{color:var(--bad)}
+@media (max-width:460px){.quick{flex-direction:column;border-radius:20px;padding:8px}.quick input{padding:14px 12px}.quick .btn{width:100%}}
+
+/* ticker */
+.ticker{border-block:1px solid var(--line);overflow:hidden;padding-block:16px;margin-bottom:96px}
+.ticker .row{display:flex;gap:40px;width:max-content;animation:tick 60s linear infinite;font-weight:500;color:var(--muted);white-space:nowrap}
+.ticker:hover .row{animation-play-state:paused}
+.ticker .row span::after{content:"·";margin-left:40px;color:var(--line)}
+@keyframes tick{to{transform:translateX(-50%)}}
+
+/* sections */
+.sec{margin-bottom:112px}
+.sec h2{font-size:clamp(28px,3.4vw,42px);line-height:1.08;margin-bottom:32px}
+@media (max-width:760px){.sec{margin-bottom:72px}.ticker{margin-bottom:64px}}
+
+/* directions */
+.dirs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+@media (max-width:960px){.dirs{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.dir.photo{padding-right:150px}
+.dir .thumb{position:absolute;top:24px;right:24px;width:108px;height:108px;object-fit:cover;border-radius:18px;transition:transform .3s}
+.dir.photo:hover .thumb{transform:scale(1.05) rotate(2deg)}
+@media (max-width:640px){.dir.photo{padding-right:26px}.dir .thumb{position:static;width:100%;height:160px;order:-1;margin-bottom:6px}}
+.dir.ask{background:var(--fg);color:var(--bg)}
+.dir.ask p{color:var(--cta-muted)}
+.dir.ask .go{color:var(--bg)}
+.dir{position:relative;display:flex;flex-direction:column;gap:10px;padding:32px;border-radius:var(--r);background:var(--soft);text-decoration:none;min-height:220px;overflow:hidden;cursor:pointer;border:0;text-align:left;font:inherit;color:inherit;transition:transform .25s,background .25s}
+.dir:hover{transform:translateY(-3px)}
+.dir h3{font:600 clamp(20px,2vw,24px)/1.2 var(--display);letter-spacing:-.02em;max-width:16ch}
+.dir p{margin:0;color:var(--muted);font-size:15px;max-width:36ch}
+.dir .go{margin-top:auto;font-weight:600;font-size:15px;color:var(--accent);display:flex;align-items:center;gap:8px}
+.dir .go .ar{transition:transform .2s}
+.dir:hover .go .ar{transform:translateX(5px)}
+.dir .cnt{align-self:flex-start;font-size:13px;font-weight:600;line-height:1;color:var(--fg);background:var(--bg);padding:7px 12px;border-radius:999px;margin-bottom:4px}
+@media (max-width:640px){.dirs{grid-template-columns:1fr}.dir{min-height:0;padding:26px}}
+
+/* trust */
+.trust{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:32px}
+.trust div{border-top:2px solid var(--fg);padding-top:18px}
+.trust h3{font-size:18px;font-weight:600;margin-bottom:8px}
+.trust p{margin:0;color:var(--muted);font-size:15px}
+@media (max-width:900px){.trust{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:520px){.trust{grid-template-columns:1fr;gap:24px}}
+
+/* product grid */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:36px 20px}
+@media (max-width:520px){.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:28px 12px}}
+.card{display:flex;flex-direction:column;gap:8px;min-width:0}
+.card .ph{background:var(--tile);border-radius:var(--r);aspect-ratio:1/1;max-width:100%;display:grid;place-items:center;overflow:hidden;border:0;padding:0;cursor:pointer}
+.card .ph img{width:76%;height:76%;object-fit:contain;mix-blend-mode:multiply;transition:transform .4s cubic-bezier(.2,.7,.2,1)}
+.card:hover .ph img{transform:scale(1.06) rotate(-1deg)}
+.card .ph .noimg{font:600 32px/1 var(--display);color:#A3ACA6}
+.card .kind{font-size:13px;color:var(--muted);margin-top:6px}
+.card h3{font-size:17px;font-weight:600;line-height:1.25}
+.card .btn{margin-top:8px;align-self:flex-start}
+@media (max-width:520px){.card .btn{align-self:stretch;padding:12px 10px}}
+
+/* catalog controls */
+.cat-head{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between;padding-top:56px;margin-bottom:24px}
+.cat-head h1{font-size:clamp(32px,4.4vw,52px);line-height:1.05}
+.seg{display:flex;gap:4px;background:var(--soft);padding:4px;border-radius:999px;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.seg button{flex:none;border:0;background:transparent;color:var(--muted);font:600 14px/1 var(--body);padding:12px 18px;border-radius:999px;cursor:pointer;transition:background .2s,color .2s}
+.seg button[aria-selected="true"]{background:var(--bg);color:var(--fg);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:32px}
+.chips button{border:0;background:var(--soft);color:var(--fg);font:500 14px/1 var(--body);padding:10px 15px;border-radius:999px;cursor:pointer;transition:background .2s,color .2s}
+.chips button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
+.chips:empty{display:none}
+.empty-ask{grid-column:1/-1;background:var(--soft);border-radius:var(--r);padding:32px;display:grid;gap:12px;justify-items:start}
+.empty-ask h3{font:600 22px/1.2 var(--display)}
+.empty-ask p{margin:0}
+.card.appear{animation:cardIn .5s cubic-bezier(.2,.7,.2,1) both}
+@keyframes cardIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+/* about */
+.about-hero{padding-block:64px 48px;max-width:860px}
+.about-hero h1{font-size:clamp(28px,5vw,60px);line-height:1.04}
+.about-hero p{font-size:clamp(18px,1.6vw,21px);color:var(--muted);margin:24px 0 0;max-width:46ch}
+.pillars{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.pillar{background:var(--soft);border-radius:var(--r);padding:32px;display:grid;gap:10px;align-content:start}
+.pillar .ic{width:44px;height:44px;border-radius:50%;background:var(--bg);display:grid;place-items:center;color:var(--accent)}
+.pillar h3{font:600 21px/1.2 var(--display);letter-spacing:-.02em;margin-top:6px}
+.pillar p{margin:0;color:var(--muted);font-size:16px}
+@media (max-width:700px){.pillars{grid-template-columns:1fr}.pillar{padding:26px}}
+.how{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:32px;counter-reset:s}
+.how div{display:grid;gap:8px}
+.how b{font:600 15px/1 var(--display);color:var(--accent)}
+.how h3{font-size:19px;font-weight:600}
+.how p{margin:0;color:var(--muted);font-size:15px}
+@media (max-width:700px){.how{grid-template-columns:1fr;gap:24px}}
+
+/* final CTA */
+.cta{background:var(--fg);color:var(--bg);border-radius:32px;padding:clamp(32px,6vw,72px);display:grid;grid-template-columns:1fr auto;gap:32px;align-items:center;margin-bottom:96px}
+.cta h2{font-size:clamp(26px,3.4vw,40px);line-height:1.1;margin:0}
+.cta p{margin:12px 0 0;color:var(--cta-muted)}
+@media (max-width:760px){.cta{grid-template-columns:1fr}}
+
+.office-grid{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.6fr);gap:16px}
+.office-info{background:var(--soft);border-radius:var(--r);padding:32px;display:grid;gap:12px;align-content:start;justify-items:start}
+.office-info h3{font:600 22px/1.25 var(--display);letter-spacing:-.02em}
+.office-info p{margin:0}
+.pin{width:14px;height:14px;border-radius:50%;background:#E5322D;box-shadow:0 0 0 0 rgba(229,50,45,.5);animation:pulse 2s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 14px rgba(229,50,45,0)}100%{box-shadow:0 0 0 0 rgba(229,50,45,0)}}
+.map{border-radius:var(--r);overflow:hidden;background:var(--soft);min-height:380px;position:relative}
+.map iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0}
+@media (max-width:760px){.office-grid{grid-template-columns:1fr}.office-info{padding:26px}.map{min-height:320px}}
+footer{border-top:1px solid var(--line);padding-block:28px 40px;font-size:14px;color:var(--muted)}
+footer .credits{font-size:12px;flex-basis:100%}
+footer .credits a{color:inherit}
+footer .wrap{display:flex;flex-wrap:wrap;gap:12px 32px;justify-content:space-between}
+
+/* reveal on scroll: виден по умолчанию; JS прячет только то, что ниже первого экрана */
+.rv.pre{opacity:0;transform:translateY(24px)}
+.rv{transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
+
+/* modal */
+dialog{border:0;padding:0;background:var(--bg);color:var(--fg);width:min(520px,calc(100vw - 24px));border-radius:28px;max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);overflow:auto}
+dialog.nomodal[open]{position:fixed;top:50%;left:50%;margin:0;z-index:100;-webkit-transform:translate(-50%,-50%);transform:translate(-50%,-50%);animation:none;box-shadow:0 0 0 100vmax rgba(10,14,12,.5)}
+dialog[open]{animation:pop .35s cubic-bezier(.2,.8,.2,1)}
+@keyframes pop{from{opacity:0;transform:translateY(24px) scale(.97)}to{opacity:1;transform:none}}
+dialog::backdrop{background:rgba(10,14,12,.5);backdrop-filter:blur(3px)}
+.m{padding:32px;display:grid;gap:18px;position:relative}
+.m .prod{display:flex;gap:16px;align-items:center;background:var(--soft);border-radius:18px;padding:12px}
+.m .prod img{width:72px;height:72px;object-fit:contain;background:var(--tile);border-radius:12px;mix-blend-mode:normal}
+.m .prod .t{font-weight:600;line-height:1.25}
+.m .prod .k{font-size:13px;color:var(--muted)}
+.m h2{font-size:26px;line-height:1.15;padding-right:40px}
+.m ul{margin:0;padding-left:18px;color:var(--muted);font-size:15px;display:grid;gap:6px;max-height:150px;overflow:auto}
+.m .quick{max-width:none}
+.x{position:absolute;top:16px;right:16px;width:40px;height:40px;border-radius:50%;border:0;background:var(--soft);color:var(--fg);font-size:22px;line-height:1;cursor:pointer;transition:transform .2s}
+.x:hover{transform:rotate(90deg)}
+.done{display:grid;justify-items:start;gap:12px}
+.check{width:64px;height:64px}
+.check circle{stroke:var(--ok);stroke-dasharray:190;stroke-dashoffset:190;animation:draw .6s ease forwards}
+.check path{stroke:var(--ok);stroke-dasharray:40;stroke-dashoffset:40;animation:draw .4s .45s ease forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+
+/* старые браузеры без aspect-ratio */
+@supports not (aspect-ratio:1/1){
+  .packs,.card .ph{height:0;padding-top:100%;position:relative}
+  .card .ph img,.card .ph .noimg{position:absolute;top:12%;left:12%}
+  .card .ph .noimg{top:40%;left:44%}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.rv.pre{opacity:1;transform:none}}
+</style>
+
+<header>
+  <div class="wrap">
+    <a class="logo" href="#home" data-view="home">ТСП<span>.</span></a>
+    <nav class="tabs" aria-label="Разделы">
+      <a href="#home" data-view="home">Главная</a>
+      <a href="#catalog" data-view="catalog">Каталог</a>
+      <a href="#about" data-view="about">О компании</a>
+    </nav>
+    <button class="btn sm" data-ask="Обратный звонок">Оставить заявку</button>
+    <button class="theme" id="themeBtn" type="button" aria-label="Тёмная тема" title="Сменить тему">
+      <svg class="i-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>
+      <svg class="i-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+    </button>
+  </div>
+</header>
+
+<main>
+  <!-- ГЛАВНАЯ -->
+  <div class="view" id="v-home">
+    <div class="wrap">
+      <section class="hero">
+        <div>
+          <h1 id="heroH">Кормовые добавки и&nbsp;ветпрепараты для&nbsp;вашей фермы</h1>
+          <p>Оставьте номер. Мы перезвоним, подберём продукт под задачу и назовём цену.</p>
+          <form class="quick" data-quick="Обратный звонок, главная" novalidate>
+            <input type="tel" inputmode="tel" autocomplete="tel" placeholder="+7 (___) ___-__-__" aria-label="Ваш номер телефона" id="heroPhone">
+            <button class="btn" type="submit">Жду звонка <span class="ar" aria-hidden="true">→</span></button>
+          </form>
+          <div class="hint">Только номер, больше ничего не нужно. Перезвоним в рабочее время.</div>
+        </div>
+        <div class="packs" aria-hidden="true">
+          <img src="img/p2.jpg" alt="">
+          <img src="img/p0.jpg" alt="">
+          <img src="img/p9.jpg" alt="">
+        </div>
+      </section>
+    </div>
+
+    <div class="ticker" aria-hidden="true"><div class="row" id="ticker"></div></div>
+
+    <div class="wrap">
+      <section class="sec rv">
+        <h2>Чем мы занимаемся</h2>
+        <div class="dirs">
+          <button class="dir" data-cat="feed">
+            <span class="cnt" id="cntFeed"></span>
+            <h3>Кормовые добавки</h3>
+            <p>Пробиотики, ферменты, сорбенты, подкислители, консерванты силоса</p>
+            <span class="go">Смотреть каталог <span class="ar" aria-hidden="true">→</span></span>
+          </button>
+          <button class="dir" data-cat="vet">
+            <span class="cnt" id="cntVet"></span>
+            <h3>Ветеринарные препараты</h3>
+            <p>Антибиотики, кокцидиостатики, средства для копыт и гигиены доения</p>
+            <span class="go">Смотреть каталог <span class="ar" aria-hidden="true">→</span></span>
+          </button>
+          <button class="dir" data-cat="amino">
+            <span class="cnt" id="cntAmino"></span>
+            <h3>Аминокислоты</h3>
+            <p>Лизин, треонин, триптофан, а также белок кормовой, глютен, продукт пшеничный, зерно и азотные удобрения</p>
+            <span class="go">Смотреть каталог <span class="ar" aria-hidden="true">→</span></span>
+          </button>
+          <button class="dir photo" data-ask="Мука">
+            <img class="thumb" src="img/extra/muka.jpg" alt="" loading="lazy" width="120" height="120">
+            <h3>Мука</h3>
+            <p>Мясокостная кормовая мука: протеин и минералы для комбикормов. Поставки от тонны.</p>
+            <span class="go">Узнать цену <span class="ar" aria-hidden="true">→</span></span>
+          </button>
+          <button class="dir photo" data-ask="Жир">
+            <img class="thumb" src="img/extra/zhir.jpg" alt="" loading="lazy" width="120" height="120">
+            <h3>Жир</h3>
+            <p>Животный кормовой жир: концентрированная энергия для рационов и комбикормов.</p>
+            <span class="go">Узнать цену <span class="ar" aria-hidden="true">→</span></span>
+          </button>
+          <button class="dir ask" data-ask="Подбор продукта">
+            <h3>Не нашли нужное?</h3>
+            <p>Оставьте номер, и мы подберём продукт под задачу хозяйства.</p>
+            <span class="go">Перезвоните мне <span class="ar" aria-hidden="true">→</span></span>
+          </button>
+        </div>
+      </section>
+
+      <section class="sec rv">
+        <h2>Почему нам доверяют</h2>
+        <div class="trust" id="trustHome"></div>
+      </section>
+
+      <section class="sec rv">
+        <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:32px">
+          <h2 style="margin:0">Чаще всего спрашивают</h2>
+          <a class="btn line sm" href="#catalog" data-view="catalog">Весь каталог <span class="ar" aria-hidden="true">→</span></a>
+        </div>
+        <div class="grid" id="popular"></div>
+      </section>
+    </div>
+  </div>
+
+  <!-- КАТАЛОГ -->
+  <div class="view" id="v-catalog">
+    <div class="wrap">
+      <div class="cat-head">
+        <h1>Каталог</h1>
+        <div class="seg" role="tablist" aria-label="Раздел каталога">
+          <button role="tab" data-top="feed" aria-selected="true">Кормовые добавки</button>
+          <button role="tab" data-top="vet" aria-selected="false">Ветпрепараты</button>
+          <button role="tab" data-top="amino" aria-selected="false">Аминокислоты</button>
+        </div>
+      </div>
+      <div class="chips" id="chips"></div>
+      <div class="grid" id="grid" style="margin-bottom:96px"></div>
+    </div>
+  </div>
+
+  <!-- О КОМПАНИИ -->
+  <div class="view" id="v-about">
+    <div class="wrap">
+      <section class="about-hero">
+        <h1>ТСП: надёжный поставщик для животноводства</h1>
+        <p>Мы поставляем хозяйствам кормовые добавки, ветеринарные препараты и средства гигиены, аминокислоты, мясокостную муку и кормовой жир. Наша задача простая: чтобы у фермы было то, что нужно, вовремя и по понятной цене.</p>
+      </section>
+
+      <section class="sec rv">
+        <div class="pillars" id="pillars"></div>
+      </section>
+
+      <section class="sec rv">
+        <h2>Как мы работаем</h2>
+        <div class="how">
+          <div><b>1</b><h3>Вы оставляете номер</h3><p>Без анкет и регистрации. Достаточно телефона.</p></div>
+          <div><b>2</b><h3>Специалист перезванивает</h3><p>Уточняет поголовье, рацион и задачу, предлагает решение и цену.</p></div>
+          <div><b>3</b><h3>Договор и поставка</h3><p>Фиксируем цену и сроки в договоре и доставляем до хозяйства.</p></div>
+        </div>
+      </section>
+
+      <section class="sec rv office">
+        <h2>Наш офис</h2>
+        <div class="office-grid">
+          <div class="office-info">
+            <span class="pin" aria-hidden="true"></span>
+            <h3>Москва, Дмитровское шоссе, 163А, корп. 2</h3>
+            <p class="muted">Приезжайте на встречу: обсудим поставки, покажем документы на продукцию.</p>
+            <a class="btn line sm" href="https://yandex.ru/maps/?rtext=~55.9115031,37.5425767&amp;rtt=auto" target="_blank" rel="noopener">Построить маршрут <span class="ar" aria-hidden="true">→</span></a>
+          </div>
+          <div class="map">
+            <iframe src="https://yandex.ru/map-widget/v1/?ll=37.5425767%2C55.9115031&amp;z=16&amp;pt=37.5425767%2C55.9115031%2Cpm2rdl&amp;l=map" title="Офис ТСП на карте: Москва, Дмитровское шоссе, 163А, корпус 2" loading="lazy" allowfullscreen></iframe>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <section class="cta rv">
+      <div>
+        <h2>Не знаете, что выбрать?</h2>
+        <p>Оставьте номер, и специалист подскажет решение под вашу ферму.</p>
+      </div>
+      <button class="btn" data-ask="Консультация">Перезвоните мне <span class="ar" aria-hidden="true">→</span></button>
+    </section>
+  </div>
+</main>
+
+<footer><div class="wrap"><span>© 2026 ТСП · Москва, Дмитровское шоссе, 163А, корп. 2</span><span>Ветеринарные препараты отпускаются по назначению ветеринарного специалиста</span><span class="credits">Фото: <a href="https://commons.wikimedia.org/wiki/File:Meat_and_bone_meal.jpg" target="_blank" rel="noopener">мука</a> (общественное достояние), <a href="https://commons.wikimedia.org/wiki/File:Tallow-beef_suet_after_rendering.jpg" target="_blank" rel="noopener">жир</a> (FotoosvanRobin, CC BY-SA 2.0)</span></div></footer>
+
+<dialog id="dlg" aria-labelledby="mT">
+  <div class="m" id="mBody"></div>
+</dialog>
+
+<script id="data" type="application/json">__DATA__</script>
+<script>
+(function(){
+  const D = JSON.parse(document.getElementById('data').textContent);
+  const $ = s => document.querySelector(s);
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const plural = (n,a,b,c) => { const m10=n%10,m100=n%100; return m10===1&&m100!==11?a:m10>=2&&m10<=4&&(m100<10||m100>=20)?b:c; };
+
+  // Куда уходит заявка. В демо-версии отправка не подключена: здесь появится отправка на почту после размещения на хостинге.
+  // Заявки уходят в Telegram-бота. Токен бота и ID чата: заполнить в TG ниже.
+  const TG = { token: '', chat: '' };
+  async function sendLead(lead){
+    const text = 'Новая заявка с сайта ТСП\n\nТелефон: ' + lead.phone + '\nИнтересует: ' + lead.topic + '\nСтраница: ' + (lead.page || '#home') + '\nВремя: ' + new Date().toLocaleString('ru-RU', {timeZone:'Europe/Moscow'}) + ' (МСК)';
+    if (!TG.token || !TG.chat) { console.info('Заявка (бот ещё не подключён):', text); return true; }
+    const body = new URLSearchParams({chat_id: TG.chat, text: text});
+    const url = 'https://api.telegram.org/bot' + TG.token + '/sendMessage';
+    try { const r = await fetch(url, {method:'POST', body: body}); return r.ok; }
+    catch (e) { try { await fetch(url, {method:'POST', body: body, mode:'no-cors'}); return true; } catch (e2) { return false; } }
+  }
+
+  const TRUST = [
+    ['Работаем по договору','Цена, объём и сроки поставки фиксируются в договоре. Никаких устных обещаний.'],
+    ['Документы на всё','Ветпрепараты и добавки поставляются с регистрационными документами и сертификатами качества.'],
+    ['Подбор специалистом','Перед поставкой разбираемся в задаче хозяйства и предлагаем то, что действительно сработает.'],
+    ['На связи после поставки','Отвечаем на вопросы по применению и помогаем скорректировать схему.']
+  ];
+  const ICONS = {
+    doc:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>',
+    shield:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>',
+    truck:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h11v9H3zM14 10h4l3 3v3h-7"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>',
+    talk:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>'
+  };
+  const PILLARS = [
+    ['shield','Надёжность','Работаем официально, по договору и с полным пакетом документов. Вы всегда знаете, что покупаете и у кого.'],
+    ['doc','Качество продукции','Поставляем зарегистрированные ветеринарные препараты и кормовые добавки с сертификатами. Каждая партия сопровождается документами.'],
+    ['truck','Поставки в срок','Согласовываем сроки заранее и держим слово. Если что-то меняется, сообщаем первыми.'],
+    ['talk','Открытость','Честно говорим, что поможет хозяйству, а что нет. Цену называем сразу и не меняем после договорённости.']
+  ];
+  $('#trustHome').innerHTML = TRUST.map(([h,p]) => `<div><h3>${h}</h3><p>${p}</p></div>`).join('');
+  $('#pillars').innerHTML = PILLARS.map(([i,h,p]) => `<div class="pillar"><span class="ic">${ICONS[i]}</span><h3>${h}</h3><p>${p}</p></div>`).join('');
+
+  const nFeed = D.filter(x=>x.top==='feed').length, nVet = D.filter(x=>x.top==='vet').length;
+  $('#cntFeed').textContent = nFeed + ' ' + plural(nFeed,'позиция','позиции','позиций');
+  $('#cntVet').textContent = nVet + ' ' + plural(nVet,'позиция','позиции','позиций');
+  const nAm = D.filter(x=>x.top==='amino').length;
+  $('#cntAmino').textContent = nAm + ' ' + plural(nAm,'позиция','позиции','позиций');
+
+  const names = D.filter(x=>x.top==='feed').map(x=>x.t).concat(D.filter(x=>x.top==='amino').map(x=>x.t), D.filter(x=>x.top==='vet').slice(0,14).map(x=>x.t));
+  const tk = names.map(n=>`<span>${esc(n)}</span>`).join('');
+  $('#ticker').innerHTML = tk + tk;
+
+  // hero headline: слова появляются по очереди
+  const h = $('#heroH');
+  h.innerHTML = h.innerHTML.split(' ').map((w,i)=>`<span class="w" style="animation-delay:${i*70}ms">${w}</span>`).join(' ');
+
+  // карточки
+  function card(x, i){
+    const ph = x.img ? `<img src="${x.img}"${x.r ? ` data-remote="${x.r}"` : ''} alt="" loading="lazy" width="400" height="400">` : `<span class="noimg">${esc(x.t[0])}</span>`;
+    const kind = x.k || x.g || 'Кормовая добавка';
+    return `<article class="card appear" style="animation-delay:${Math.min(i,12)*40}ms">
+      <button class="ph" data-prod="${x.id}" aria-label="${esc(x.t)}: подробнее и цена">${ph}</button>
+      <span class="kind">${esc(kind)}</span>
+      <h3>${esc(x.t)}</h3>
+      <button class="btn line sm" data-prod="${x.id}">Узнать цену</button>
+    </article>`;
+  }
+  const POPULAR = ['Дигестрол ЛФ','Биорост С','L-лизин моногидрохлорид 98,5%','Рунеон ЛФ','Комбисорб ЛФ','Белок кормовой','Тилозин ЛФ 800','Энромакс 10%'];
+  $('#popular').innerHTML = POPULAR.map(n => D.find(x=>x.t===n)).filter(Boolean).map(card).join('');
+
+  const AMINO_GROUPS = ['Аминокислоты','Сопутствующие продукты','Азотные удобрения','Белок кормовой','Зерно','Продукт пшеничный','Пшеничный глютен'];
+  const GROUPS = ['Оральные препараты','Инъекционные препараты','Порошки','Противомаститные шприцы','Средства для копыт','Средства гигиены','Диагностические средства','Оборудование и программное обеспечение'];
+  const SHORT = {'Оборудование и программное обеспечение':'Оборудование','Диагностические средства':'Диагностика','Противомаститные шприцы':'Шприцы при мастите','Оральные препараты':'Оральные','Инъекционные препараты':'Инъекционные'};
+  let top = 'feed', group = '';
+  function renderCatalog(){
+    document.querySelectorAll('.seg button').forEach(b => b.setAttribute('aria-selected', b.dataset.top===top));
+    const gl = top==='vet' ? GROUPS : top==='amino' ? AMINO_GROUPS : null;
+    $('#chips').innerHTML = gl ? [''].concat(gl).map(g => `<button data-g="${esc(g)}" aria-pressed="${g===group}">${esc(g? (SHORT[g]||g) : 'Все')}</button>`).join('') : '';
+    const inGroup = x => !group || x.g===group || (group==='Сопутствующие продукты' && x.top==='amino' && x.g!=='Аминокислоты');
+    const L = D.filter(x => x.top===top && inGroup(x));
+    $('#grid').innerHTML = L.length ? L.map(card).join('') : `<div class="empty-ask"><h3>${esc(group)}: поставка под заказ</h3><p class="muted">Оставьте номер, и мы сообщим наличие, объёмы и цену.</p><button class="btn" data-ask="${esc(group)}">Узнать наличие <span class="ar" aria-hidden="true">→</span></button></div>`;
+  }
+  document.querySelectorAll('.seg button').forEach(b => b.onclick = () => { top = b.dataset.top; group=''; renderCatalog(); });
+  $('#chips').addEventListener('click', e => { const b = e.target.closest('[data-g]'); if (b){ group = b.dataset.g; renderCatalog(); } });
+
+  // вкладки
+  const VIEWS = ['home','catalog','about'];
+  function show(v, scroll){
+    if (!VIEWS.includes(v)) v = 'home';
+    VIEWS.forEach(n => $('#v-'+n).classList.toggle('on', n===v));
+    document.querySelectorAll('nav.tabs a').forEach(a => { if (a.dataset.view===v) a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current'); });
+    if (v==='catalog') renderCatalog();
+    if (scroll !== false) window.scrollTo({top:0});
+    try { history.replaceState(null,'','#'+v); } catch(e){}
+    armReveal();
+  }
+  document.addEventListener('click', e => {
+    const v = e.target.closest('[data-view]'); if (v){ e.preventDefault(); show(v.dataset.view); return; }
+    const c = e.target.closest('[data-cat]'); if (c){ top = c.dataset.cat; group=''; show('catalog'); return; }
+    const p = e.target.closest('[data-prod]'); if (p){ openLead({prod: D[+p.dataset.prod]}); return; }
+    const a = e.target.closest('[data-ask]'); if (a){ openLead({topic: a.dataset.ask}); return; }
+  });
+
+  // появление при прокрутке: прячем только то, что ниже первого экрана
+  let io = null;
+  function armReveal(){
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) return;
+    io && io.disconnect();
+    io = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting){ en.target.classList.remove('pre'); io.unobserve(en.target); } }), {rootMargin:'0px 0px -8% 0px'});
+    document.querySelectorAll('.view.on .rv, main > .wrap > .rv').forEach(el => {
+      if (el.getBoundingClientRect().top > innerHeight) { el.classList.add('pre'); io.observe(el); }
+    });
+  }
+
+  // телефон: маска для +7, но принимаем любой номер от 10 цифр
+  function fmt(v){
+    let d = v.replace(/\D/g,'');
+    if (!d) return '';
+    if (d[0]==='8') d = '7'+d.slice(1);
+    else if (d[0]==='9') d = '7'+d;
+    if (d[0]!=='7') return '+'+d.slice(0,15);
+    d = d.slice(0,11);
+    const p = [d.slice(0,1), d.slice(1,4), d.slice(4,7), d.slice(7,9), d.slice(9,11)];
+    let s = '+'+p[0];
+    if (p[1]) s += ' ('+p[1] + (p[1].length===3?')':'');
+    if (p[2]) s += ' '+p[2];
+    if (p[3]) s += '-'+p[3];
+    if (p[4]) s += '-'+p[4];
+    return s;
+  }
+  document.addEventListener('input', e => { if (e.target.type==='tel'){ const el=e.target; const end = el.selectionEnd===el.value.length; const dg = el.value.replace(/\D/g,''); if (dg.length===2 && dg==='78' && (el.dataset.prev||'')==='7') el.value = '+7'; el.value = fmt(el.value); el.dataset.prev = el.value.replace(/\D/g,''); if (end) el.selectionStart = el.selectionEnd = el.value.length; } });
+  document.addEventListener('focusin', e => { if (e.target.type==='tel' && !e.target.value) { e.target.value = '+7 '; e.target.dataset.prev = '7'; } });
+  document.addEventListener('focusout', e => { if (e.target.type==='tel' && e.target.value.replace(/\D/g,'')==='7') e.target.value = ''; });
+
+  const DONE = `<svg class="check" viewBox="0 0 64 64" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="32" cy="32" r="29"/><path d="M20 33l8 8 16-17"/></svg>`;
+  async function submitQuick(form, topic){
+    const inp = form.querySelector('input[type=tel]');
+    const hint = form.nextElementSibling && form.nextElementSibling.classList.contains('hint') ? form.nextElementSibling : null;
+    const digits = inp.value.replace(/\D/g,'');
+    if (digits.length < 10){
+      inp.focus();
+      if (hint){ hint.classList.add('err'); hint.textContent = 'Введите номер полностью, вместе с кодом оператора.'; }
+      form.animate && form.animate([{transform:'translateX(0)'},{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'translateX(0)'}],{duration:280});
+      return;
+    }
+    const btn = form.querySelector('button[type=submit]'); if (btn) { btn.disabled = true; btn.style.opacity = '.6'; }
+    const ok = await sendLead({phone: inp.value, topic, page: location.hash});
+    if (btn) { btn.disabled = false; btn.style.opacity = ''; }
+    if (!ok){ if (hint){ hint.classList.add('err'); hint.textContent = 'Не удалось отправить заявку. Проверьте интернет и попробуйте ещё раз.'; } return; }
+    const box = form.closest('.m') || form.parentElement;
+    const html = `<div class="done">${DONE}<h2 id="mT" style="font-size:26px">Спасибо, заявка принята</h2><p class="muted" style="margin:0">Перезвоним на ${esc(inp.value)} в рабочее время.</p></div>`;
+    if (form.closest('.m')) { box.innerHTML = `<button class="x" aria-label="Закрыть" onclick="this.closest('dialog').close()">×</button>` + html; }
+    else { form.outerHTML = html; if (hint) hint.remove(); }
+  }
+  document.addEventListener('submit', e => {
+    const f = e.target.closest('form[data-quick]'); if (!f) return;
+    e.preventDefault(); submitQuick(f, f.dataset.quick);
+  });
+
+  // окно заявки: контекст подставляется сам, посетитель вводит только номер
+  const dlg = $('#dlg');
+  function openLead({prod, topic}){
+    let head = '';
+    if (prod){
+      const img = prod.img ? `<img src="${prod.img}"${prod.r ? ` data-remote="${prod.r}"` : ''} alt="">` : '';
+      head = `<div class="prod">${img}<div><div class="t">${esc(prod.t)}</div><div class="k">${esc(prod.k || prod.g || 'Кормовая добавка')}</div></div></div>
+        ${prod.b.length ? `<ul>${prod.b.slice(0,5).map(s=>`<li>${esc(s)}</li>`).join('')}</ul>` : ''}`;
+    }
+    const title = prod ? 'Узнать цену' : (topic==='Мука' ? 'Цена на муку' : topic==='Жир' ? 'Цена на жир' : 'Перезвоним вам');
+    const ctx = prod ? 'Цена: '+prod.t : topic;
+    $('#mBody').innerHTML = `<button class="x" aria-label="Закрыть">×</button>
+      <h2 id="mT">${esc(title)}</h2>${head}
+      <form class="quick" data-quick="${esc(ctx)}" novalidate>
+        <input type="tel" inputmode="tel" autocomplete="tel" placeholder="+7 (___) ___-__-__" aria-label="Ваш номер телефона" id="mPhone">
+        <button class="btn" type="submit">Отправить <span class="ar" aria-hidden="true">→</span></button>
+      </form>
+      <div class="hint">Оставьте только номер. Остальное уточним по телефону.</div>`;
+    $('#mBody .x').onclick = () => dlg.close();
+    if (dlg.showModal) dlg.showModal(); else { dlg.classList.add('nomodal'); dlg.setAttribute('open',''); dlg.close = function(){ dlg.removeAttribute('open'); }; }
+    setTimeout(() => { const i = $('#mPhone'); i && i.focus(); }, 60);
+  }
+  dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
+
+  // фото: сначала своя копия, если её нет, то с сайта производителя, иначе буква
+  document.addEventListener('error', e => {
+    const im = e.target; if (!im || im.tagName !== 'IMG') return;
+    if (im.dataset.remote && !im.dataset.tried){ im.dataset.tried = '1'; im.src = im.dataset.remote; return; }
+    if (im.parentNode && im.closest('.ph')){ const s = document.createElement('span'); s.className = 'noimg'; s.textContent = (im.closest('.card') && im.closest('.card').querySelector('h3') ? im.closest('.card').querySelector('h3').textContent : '•')[0]; im.replaceWith(s); }
+    else im.style.visibility = 'hidden';
+  }, true);
+
+  // тема: светлая или тёмная, выбор запоминается
+  const root = document.documentElement;
+  const sysDark = window.matchMedia ? matchMedia('(prefers-color-scheme: dark)') : null;
+  function applyTheme(th){
+    if (th) root.setAttribute('data-theme', th); else root.removeAttribute('data-theme');
+    const dark = th ? th === 'dark' : !!(sysDark && sysDark.matches);
+    root.classList.toggle('is-dark', dark);
+    const b = $('#themeBtn'); if (b) b.setAttribute('aria-label', dark ? 'Светлая тема' : 'Тёмная тема');
+  }
+  let saved = null; try { saved = localStorage.getItem('tsp-theme'); } catch(e){}
+  applyTheme(saved);
+  if (sysDark && sysDark.addEventListener) sysDark.addEventListener('change', () => { if (!root.getAttribute('data-theme')) applyTheme(null); });
+  $('#themeBtn').addEventListener('click', () => {
+    const next = root.classList.contains('is-dark') ? 'light' : 'dark';
+    root.classList.add('theme-anim'); setTimeout(() => root.classList.remove('theme-anim'), 500);
+    applyTheme(next); try { localStorage.setItem('tsp-theme', next); } catch(e){}
+  });
+
+  const start = (location.hash||'').slice(1);
+  show(VIEWS.includes(start) ? start : 'home', false);
+})();
+</script>
