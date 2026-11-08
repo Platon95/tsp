@@ -61,8 +61,7 @@ header .btn{margin-left:auto}
 html.theme-anim body,html.theme-anim header,html.theme-anim .dir,html.theme-anim .card .ph{transition:background-color .35s,color .35s}
 @media (max-width:760px){
   header .wrap{height:60px;gap:8px}
-  header{transition:transform .3s cubic-bezier(.2,.7,.2,1)}
-  header.hide{transform:translateY(-110%)}
+  header{position:relative;top:auto}
   header .btn{display:none}
   header nav.tabs{display:none}
   .theme{margin-left:auto}
@@ -628,21 +627,6 @@ dialog::backdrop{background:rgba(10,14,12,.5);backdrop-filter:blur(3px)}
     root.classList.add('theme-anim'); setTimeout(() => root.classList.remove('theme-anim'), 500);
     applyTheme(next); try { localStorage.setItem('tsp-theme', next); } catch(e){}
   });
-
-  // шапка на телефоне: прячется, когда листаем вниз, и возвращается при прокрутке вверх
-  (function(){
-    const hd = document.querySelector('header'); let last = window.pageYOffset || 0, ticking = false;
-    window.addEventListener('scroll', () => {
-      if (ticking) return; ticking = true;
-      requestAnimationFrame(() => {
-        const y = window.pageYOffset || 0;
-        const mobile = window.innerWidth <= 760;
-        if (!mobile || y < 80 || y < last - 4) hd.classList.remove('hide');
-        else if (y > last + 4) hd.classList.add('hide');
-        last = y; ticking = false;
-      });
-    }, {passive:true});
-  })();
 
   const start = (location.hash||'').slice(1);
   show(VIEWS.includes(start) ? start : 'home', false);
